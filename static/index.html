@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keystroke Dynamics ML Authentication | CSL236</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 24px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            color: white;
+            padding: 32px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        header h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+        header p { color: #94a3b8; font-size: 14px; }
+        .badges { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+        .badge {
+            background: rgba(255, 255, 255, 0.12);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .main-layout { display: grid; grid-template-columns: 1fr 420px; gap: 24px; }
+        @media (max-width: 960px) { .main-layout { grid-template-columns: 1fr; } }
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 24px;
+        }
+        .card h2 { font-size: 18px; font-weight: 600; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .presets { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        button {
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.15s ease-in-out;
+        }
+        .btn-genuine { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+        .btn-genuine:hover { background: #bbf7d0; }
+        .btn-impostor { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+        .btn-impostor:hover { background: #fecaca; }
+        .btn-clear { background: #f1f5f9; color: var(--text-muted); }
+        .btn-clear:hover { background: #e2e8f0; }
+        .btn-submit {
+            background: var(--primary);
+            color: white;
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            margin-top: 16px;
+        }
+        .btn-submit:hover { background: var(--primary-dark); }
+        .feature-category { margin-bottom: 20px; }
+        .feature-category h3 { font-size: 14px; font-weight: 600; color: var(--text-muted); margin-bottom: 10px; }
+        .grid-inputs { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+        .input-group label { display: block; font-size: 11px; font-weight: 600; font-family: 'JetBrains Mono', monospace; margin-bottom: 4px; }
+        .input-group input {
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .input-group input:focus { outline: 2px solid var(--primary); border-color: transparent; }
+        /* Result card */
+        .result-box { display: none; }
+        .result-status {
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 16px;
+        }
+        .status-auth { background: #dcfce7; color: var(--success); border: 2px solid var(--success); }
+        .status-denied { background: #fee2e2; color: var(--danger); border: 2px solid var(--danger); }
+        .metric-bar { margin-bottom: 16px; }
+        .bar-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+        .progress-track { height: 12px; background: #e2e8f0; border-radius: 6px; overflow: hidden; position: relative; }
+        .progress-fill { height: 100%; width: 0%; transition: width 0.4s ease; border-radius: 6px; }
+        .threshold-marker { position: absolute; top: 0; bottom: 0; width: 3px; background: #0f172a; }
+        .tips-list { list-style: none; margin-top: 16px; }
+        .tips-list li {
+            padding: 10px 14px;
+            background: #f8fafc;
+            border-left: 4px solid var(--primary);
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        .influences { margin-top: 16px; }
+        .inf-row { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; font-family: 'JetBrains Mono', monospace; }
+        footer { text-align: center; font-size: 12px; color: var(--text-muted); margin-top: 32px; padding: 16px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Keystroke Dynamics Biometric Authentication</h1>
+        <p>CSL236 End-Term Project · The NorthCap University · Behavioral Biometric Anomaly Detection</p>
+        <div class="badges">
+            <span class="badge">Password: .tie5Roanl</span>
+            <span class="badge">Enrolled User: s002</span>
+            <span class="badge">Model: Random Forest (EER-Calibrated)</span>
+            <span class="badge">31 Continuous Features</span>
+            <span class="badge">Data Contract Enforced</span>
+        </div>
+    </header>
+
+    <div class="main-layout">
+        <!-- Input section -->
+        <div class="card">
+            <h2>Biometric Timing Inputs (Seconds)</h2>
+            <div class="presets">
+                <button type="button" class="btn-genuine" onclick="loadSample('genuine')">Load Genuine User (s002)</button>
+                <button type="button" class="btn-impostor" onclick="loadSample('impostor')">Load Impostor Sample (s003)</button>
+                <button type="button" class="btn-clear" onclick="clearForm()">Reset Inputs</button>
+            </div>
+
+            <form id="authForm" onsubmit="handleAuth(event)">
+                <div class="feature-category">
+                    <h3>1. Key Hold Times (H — 11 features)</h3>
+                    <div class="grid-inputs" id="hold-inputs"></div>
+                </div>
+
+                <div class="feature-category">
+                    <h3>2. Keydown-to-Keydown Latencies (DD — 10 features)</h3>
+                    <div class="grid-inputs" id="dd-inputs"></div>
+                </div>
+
+                <div class="feature-category">
+                    <h3>3. Keyup-to-Keydown Intervals (UD — 10 features, Key Rollover &lt; 0 preserved)</h3>
+                    <div class="grid-inputs" id="ud-inputs"></div>
+                </div>
+
+                <button type="submit" class="btn-submit" id="submitBtn">Authenticate Biometric Sample</button>
+            </form>
+        </div>
+
+        <!-- Output section -->
+        <div>
+            <div class="card" id="resultCard">
+                <h2>Authentication Decision</h2>
+                <div id="placeholderText" style="color: var(--text-muted); font-size: 14px; text-align: center; padding: 40px 0;">
+                    Click a preset sample above or enter 31 timing values, then click <strong>Authenticate Biometric Sample</strong>.
+                </div>
+
+                <div class="result-box" id="resultBox">
+                    <div class="result-status" id="statusBadge"></div>
+
+                    <div class="metric-bar">
+                        <div class="bar-label">
+                            <span>Match Score (Authenticity Probability)</span>
+                            <strong id="scoreVal">0.00%</strong>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill" id="scoreBar"></div>
+                            <div class="threshold-marker" id="threshMarker" title="EER Decision Threshold"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+                            <span>0.00 (Impostor)</span>
+                            <span id="threshText">Threshold: 0.1094</span>
+                            <span>1.00 (Genuine)</span>
+                        </div>
+                    </div>
+
+                    <h3 style="font-size: 14px; font-weight: 600; margin-top: 20px;">Behavioral Rule-Based Insights</h3>
+                    <ul class="tips-list" id="tipsList"></ul>
+
+                    <div class="influences" id="infBox" style="display: none;">
+                        <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">Top Influential Features</h3>
+                        <div id="infList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="font-size: 13px; color: var(--text-muted);">
+                <h2>System Information</h2>
+                <p><strong>API Endpoint:</strong> <code>POST /predict</code></p>
+                <p><strong>Health Check:</strong> <code>GET /health</code></p>
+                <p><strong>Contract Rules:</strong> All 31 timing features strictly validated. Negative UD values accepted as key rollover. Out-of-bound inputs return HTTP 422.</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        CSL236 Machine Learning Project · The NorthCap University · Department of Computer Science & Engineering
+    </footer>
+</div>
+
+<script>
+const FEATURE_NAMES = [
+    'H.period', 'DD.period.t', 'UD.period.t',
+    'H.t', 'DD.t.i', 'UD.t.i',
+    'H.i', 'DD.i.e', 'UD.i.e',
+    'H.e', 'DD.e.five', 'UD.e.five',
+    'H.five', 'DD.five.Shift.r', 'UD.five.Shift.r',
+    'H.Shift.r', 'DD.Shift.r.o', 'UD.Shift.r.o',
+    'H.o', 'DD.o.a', 'UD.o.a',
+    'H.a', 'DD.a.n', 'UD.a.n',
+    'H.n', 'DD.n.l', 'UD.n.l',
+    'H.l', 'DD.l.Return', 'UD.l.Return',
+    'H.Return'
+];
+
+function buildInputs() {
+    const holdContainer = document.getElementById('hold-inputs');
+    const ddContainer = document.getElementById('dd-inputs');
+    const udContainer = document.getElementById('ud-inputs');
+
+    FEATURE_NAMES.forEach(f => {
+        const div = document.createElement('div');
+        div.className = 'input-group';
+        div.innerHTML = `
+            <label for="input_${f}">${f}</label>
+            <input type="number" step="0.0001" id="input_${f}" name="${f}" required>
+        `;
+        if (f.startsWith('H.')) holdContainer.appendChild(div);
+        else if (f.startsWith('DD.')) ddContainer.appendChild(div);
+        else if (f.startsWith('UD.')) udContainer.appendChild(div);
+    });
+}
+
+async function loadSample(type) {
+    try {
+        const res = await fetch(`/api/sample/${type}`);
+        const data = await res.json();
+        for (const [key, val] of Object.entries(data)) {
+            const input = document.getElementById(`input_${key}`);
+            if (input) input.value = val.toFixed(4);
+        }
+        // Auto submit for smooth demonstration
+        document.getElementById('authForm').dispatchEvent(new Event('submit'));
+    } catch (e) {
+        alert('Failed to load sample: ' + e);
+    }
+}
+
+function clearForm() {
+    FEATURE_NAMES.forEach(f => {
+        const input = document.getElementById(`input_${f}`);
+        if (input) input.value = '';
+    });
+    document.getElementById('placeholderText').style.display = 'block';
+    document.getElementById('resultBox').style.display = 'none';
+}
+
+async function handleAuth(event) {
+    event.preventDefault();
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Authenticating...';
+
+    const payload = {};
+    FEATURE_NAMES.forEach(f => {
+        const input = document.getElementById(`input_${f}`);
+        payload[f] = parseFloat(input.value);
+    });
+
+    try {
+        const res = await fetch('/predict', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+            const err = await res.json();
+            alert('Validation Error (HTTP ' + res.status + '): ' + JSON.stringify(err.detail || err));
+            return;
+        }
+
+        const data = await res.json();
+        displayResult(data);
+    } catch (e) {
+        alert('Request failed: ' + e);
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Authenticate Biometric Sample';
+    }
+}
+
+function displayResult(data) {
+    document.getElementById('placeholderText').style.display = 'none';
+    const box = document.getElementById('resultBox');
+    box.style.display = 'block';
+
+    const badge = document.getElementById('statusBadge');
+    badge.textContent = data.decision;
+    badge.className = 'result-status ' + (data.authenticated ? 'status-auth' : 'status-denied');
+
+    document.getElementById('scoreVal').textContent = (data.match_score * 100).toFixed(2) + '%';
+    const bar = document.getElementById('scoreBar');
+    bar.style.width = Math.min(100, Math.max(0, data.match_score * 100)) + '%';
+    bar.style.background = data.authenticated ? 'var(--success)' : 'var(--danger)';
+
+    const marker = document.getElementById('threshMarker');
+    marker.style.left = (data.threshold * 100) + '%';
+    document.getElementById('threshText').textContent = 'Threshold: ' + data.threshold.toFixed(4);
+
+    const tipsList = document.getElementById('tipsList');
+    tipsList.innerHTML = '';
+    data.rule_based_tips.forEach(tip => {
+        const li = document.createElement('li');
+        li.textContent = tip;
+        tipsList.appendChild(li);
+    });
+
+    const infBox = document.getElementById('infBox');
+    const infList = document.getElementById('infList');
+    if (data.top_feature_influences) {
+        infBox.style.display = 'block';
+        infList.innerHTML = '';
+        for (const [feat, val] of Object.entries(data.top_feature_influences)) {
+            const div = document.createElement('div');
+            div.className = 'inf-row';
+            div.innerHTML = `<span>${feat}</span><strong>${(val * 100).toFixed(2)}%</strong>`;
+            infList.appendChild(div);
+        }
+    } else {
+        infBox.style.display = 'none';
+    }
+}
+
+window.onload = buildInputs;
+</script>
+</body>
+</html>

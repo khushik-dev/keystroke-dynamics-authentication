@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keystroke Dynamics ML Authentication | CSL236 Presentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --accent: #38bdf8;
+            --dark: #0f172a;
+            --card-bg: #1e293b;
+            --text-light: #f8fafc;
+            --text-dim: #94a3b8;
+            --success: #22c55e;
+            --danger: #ef4444;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--dark);
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .slide-container {
+            width: 100%;
+            max-width: 1050px;
+            height: 620px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .slide {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            padding: 48px 56px;
+        }
+        .slide.active { display: flex; }
+        .slide-header {
+            margin-bottom: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 16px;
+        }
+        .slide-tag {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--accent);
+            font-weight: 700;
+        }
+        .slide-header h2 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-top: 4px;
+            color: white;
+        }
+        .slide-body {
+            flex: 1;
+            overflow-y: auto;
+            font-size: 16px;
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 1050px;
+            margin-top: 16px;
+        }
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .nav-btn:hover { background: var(--primary); }
+        .counter { font-size: 14px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+        /* Grid layouts */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+        .feature-box {
+            background: rgba(15, 23, 42, 0.6);
+            padding: 18px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .feature-box h4 { color: var(--accent); margin-bottom: 6px; font-size: 16px; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 12px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        th { background: rgba(15, 23, 42, 0.8); color: var(--accent); }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-success { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .badge-danger { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .speaker-notes {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 12px 16px;
+            border-left: 3px solid var(--accent);
+            border-radius: 0 8px 8px 0;
+            margin-top: 18px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="slide-container">
+    <!-- Slide 1: Title -->
+    <div class="slide active">
+        <div style="margin: auto; text-align: center;">
+            <div class="slide-tag">End-Term Project Presentation · CSL236</div>
+            <h1 style="font-size: 34px; font-weight: 800; margin: 16px 0; color: white;">
+                Machine Learning-Based User Authentication<br>Using Keystroke Dynamics
+            </h1>
+            <p style="color: var(--text-dim); max-width: 650px; margin: 0 auto 24px;">
+                A Production-Grade, Containerized Behavioral Biometric Authentication System with MLflow Tracking and EER Threshold Calibration
+            </p>
+            <div style="background: rgba(255,255,255,0.05); display: inline-block; padding: 14px 28px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); font-size: 14px;">
+                <strong>Course:</strong> CSL236 Introduction to AI & ML &nbsp;|&nbsp; <strong>Sem:</strong> 5th &nbsp;|&nbsp; <strong>Roll No:</strong> 23CSU001<br>
+                Department of Computer Science & Engineering · The NorthCap University
+            </div>
+        </div>
+        <div class="speaker-notes">
+            <strong>Speaker Notes:</strong> "Good morning/afternoon, professors. Today I'm presenting my semester project on keystroke dynamics authentication. We built an end-to-end ML system that verifies user identity based on how someone types their password on the CMU benchmark dataset, following the Brainmentors MLOps blueprint."
+        </div>
+    </div>
+
+    <!-- Slide 2: Problem & Motivation -->
+    <div class="slide">
+        <div class="slide-header">
+            <div class="slide-tag">Context & Objectives</div>
+            <h2>Problem Statement & Biometric Motivation</h2>
+        </div>
+        <div class="slide-body">
+            <div class="grid-2">
+                <div class="feature-box">
+                    <h4>The Security Dilemma</h4>
+                    <p>Static passwords (what you know) are vulnerable to observation, credential theft, and brute-force dictionary attacks. Physical biometrics (fingerprints/iris) require costly, dedicated hardware.</p>
+                </div>
+                <div class="feature-box">
+                    <h4>The Behavioral Solution</h4>
+                    <p>Keystroke dynamics verifies <em>how</em> a user types rather than just <em>what</em> they type. It requires <strong>zero additional hardware</strong>, operating on standard keyboards.</p>
+                </div>
+            </div>
+            <div style="margin-top: 18px;" class="feature-box">
+                <h4>Core Machine Learning Challenge</h4>
+                <p>Authenticate enrolled user <strong><code>s002</code> (Class 1)</strong> against 50 zero-effort impostors <strong>(Class 0)</strong> under extreme <strong>1:50 class imbalance</strong> (~1.96% genuine, 98.04% impostor) across multi-day temporal sessions.</p>
+            </div>
+        </div>
+        <div class="speaker-notes">
+            <strong>Speaker Notes:</strong> "Here I explain the motivation: passwords can be stolen or observed, but keystroke dynamics requires zero extra hardware—it uses regular keyboards. In our 1-vs-all setup with user s002, the biggest hurdle is the severe 1:50 class imbalance, where genuine logins make up less than 2% of the test data."
+        </div>
+    </div>
+
+    <!-- Slide 3: Keystroke Physics -->
+    <div class="slide">
+        <div class="slide-header">
+            <div class="slide-tag">Biometric Modality</div>
+            <h2>Keystroke Mechanics & The 31 Features</h2>
+        </div>
+        <div class="slide-body">
+            <p style="margin-bottom: 14px;">Extracted from 400 repetitions of password <code>.tie5Roanl</code> across 3 timing dimensions:</p>
+            <div class="grid-3">
+                <div class="feature-box">
+                    <h4>1. Hold Times (H)</h4>
+                    <p style="font-size: 13px;">11 features ($t_{\text{rel}} - t_{\text{press}}$). Key dwell duration. Top discriminative feature: <code>H.Shift.r</code> (ANOVA $F > 280$).</p>
+                </div>
+                <div class="feature-box">
+                    <h4>2. Keydown-Keydown (DD)</h4>
+                    <p style="font-size: 13px;">10 digraph latencies ($t_{\text{press}, 2} - t_{\text{press}, 1}$). Captures finger flight speeds between successive keys.</p>
+                </div>
+                <div class="feature-box">
+                    <h4>3. Keyup-Keydown (UD)</h4>
+                    <p style="font-size: 13px;">10 inter-key intervals ($t_{\text{press}, 2} - t_{\text{rel}, 1}$). <strong>Preserves negative values (Key Rollover).</strong></p>
+                </div>
+            </div>
+            <div class="feature-box" style="margin-top: 16px; border-left: 4px solid var(--accent);">
+                <h4>Physical Justification: Key Rollover ($UD < 0$)</h4>
+                <p style="font-size: 13px;">In fluent typing, the typist strikes key $k+1$ before releasing key $k$. Exactly <strong>22,118 samples (10.84% of all UD values)</strong> are negative in our dataset. Our Pydantic contract strictly accepts negative values as authentic biometrics.</p>
+            </div>
+        </div>
+        <div class="speaker-notes">
+            <strong>Speaker Notes:</strong> "Walk through the 31 features: 11 hold times, 10 DD flight times, and 10 UD intervals. A key technical finding here is that 10.84% of all UD values are negative because fast typists overlap keys (key rollover). Instead of treating this as bad data, our system preserves it as an authentic biometric feature."
+        </div>
+    </div>
+
+    <!-- Slide 4: EDA & Dataset -->
+    <div class="slide">
+        <div class="slide-header">
+            <div class="slide-tag">Data Exploration</div>
+            <h2>Exploratory Data Analysis Highlights</h2>
+        </div>
+        <div class="slide-body">
+            <div class="grid-2">
+                <div class="feature-box">
+                    <h4>CMU Benchmark Dataset Profile</h4>
+                    <ul style="padding-left: 18px; font-size: 13px;">
+                        <li><strong>20,400 rows</strong>, 34 columns (31 timing features).</li>
+                        <li><strong>51 subjects</strong>, 400 reps each across 8 sessions.</li>
+                        <li><strong>Zero missing values</strong> and <strong>zero duplicates</strong>.</li>
+                        <li>Positive skewness in flight times due to pauses.</li>
+                    </ul>
+                </div>
+                <div class="feature-box">
+                    <h4>Statistical Insights</h4>
+                    <ul style="padding-left: 18px; font-size: 13px;">
+                        <li><strong>ANOVA F-Test:</strong> <code>H.Shift.r</code>, <code>H.t</code>, <code>H.i</code> exhibit highest between-subject vs within-subject variance.</li>
+                        <li><strong>Collinearity:</strong> Digraph identity $DD \approx H + UD$ causes multicollinearity ($r > 0.85$).</li>
+                        <li><strong>Session Drift:</strong> Mean hold times decrease from Session 1 to 4 as users adapt to the password.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="speaker-notes">
+            <strong>Speaker Notes:</strong> "Highlight the dataset quality: 20,400 rows with zero missing values. Point out our ANOVA F-test findings where H.Shift.r showed the highest between-subject variance (F > 280), making it the single most discriminative feature for identifying user s002."
+        </div>
+    </div>
+
+    <!-- Slide 5: Preprocessing & Imbalance -->
+    <div class="slide">
+        <div class="slide-header">
+            <div class="slide-tag">Methodology</div>
+            <h2>Leakage-Free Preprocessing & The 1:50 Imbalance Trap</h2>
+        </div>
+        <div class="slide-body">
+            <div class="grid-2">
+                <div class="feature-box">
+                    <h4>Temporal Partitioning (No Leakage)</h4>
+                    <p style="font-size: 13px;">Random row splits leak intra-day typing fatigue. We strictly enforce:</p>
+                    <ul style="padding-left: 18px; font-size: 13px; margin-top: 6px;">
+                        <li><strong>Train:</strong> Sessions 1–3 ($N = 7,650$)</li>
+                        <li><strong>Validation:</strong> Session 4 ($N = 2,550$) — EER tuning</li>
+                        <li><strong>Holdout Test:</strong> Sessions 5–8 ($N = 10,200$)</li>
+                    </ul>
+                </div>
+                <div class="feature-box">
+                    <h4>Dimensionality Reduction (PCA)</h4>
+                    <p style="font-size: 13px;"><code>StandardScaler</code> fit on Train only.<br><code>PCA(n_components=0.95)</code> reduces 31 collinear features to <strong>17 orthogonal components</strong> while retaining 95.2% variance.</p>
+                </div>
+            </div>
+            <div class="feature-box" style="margin-top: 16px; border-left: 4px solid var(--danger);">
+                <h4>The 99% FRR Baseline Trap (Why Accuracy is Deceptive)</h4>
+                <p style="font-size: 13px;">Under 1:50 class imbalance, a default classifier achieves <strong>97.90% accuracy</strong> simply by predicting "Impostor" for 100% of logins. Out of 200 genuine test attempts, it rejected 199 ($\text{FRR} = 99.50\%$). Balanced weighting and threshold tuning are mandatory.</p>
+            </div>
+        </div>
+        <div class="speaker-notes">
+            <strong>Speaker Notes:</strong> "Explain the accuracy paradox: our midterm model had 97.9% accuracy but rejected 99.5% of genuine user logins because it just predicted 'impostor' every time. We fixed this by balancing class weights and tuning the decision threshold on Session 4 validation data to the Equal Error Rate point."
+        </div>
+    </div>
+
+    <!-- Slide 6: System Architecture -->
+    <div class="slide">
+        <div class="slide-header">
+            <div class="slide-tag">System Design</div>
+            <h2>End-to-End Production ML Architecture</h2>
+        </div>
+        <div class="slide-body">
+            <div class="feature-box" style="font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.8;">
+                [CMU Benchmark Data] ➔ [Session Split (S1-3 Train / S4 Val / S5-8 Test)]<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;▼<br>
+                [MLflow SQLite Tracking (sqlite:///mlflow.db)] ➔ Track Params, Metrics, ROC Curves<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;▼<br>
+                [Serialized Pipeline (model/model.joblib)] ➔ Scaler + Model + Threshold<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;▼<br>
+                [FastAPI Backend (app.py)] ➔ Pydantic 31 Bounds (422) + Rule-Based Tips<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── [Web UI (static/index.html)] with 1-Click Genuine/Impostor Presets<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── [Drift Monitor (drift_check.py)] ➔ KS-Test on Logged Inputs<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── [Docker Container (python:3.11-slim)] + [GitHub Actions CI]
+            </div>
+        </div>
+        <div class="speaker-notes">
+            <strong>Speaker Notes:</strong> "Walk through our complete pipeline architecture: data splitting to prevent leakage, MLflow tracking to compare models, serializing the pipeline into model.joblib, serving via FastAPI with Pydantic contract checks, containerizing with Docker, and running automated tests in GitHub Actions CI."
+        </div>
+    </div>
+
+    <!-- Slide 7: MLflow Results & Production Selection -->
+    <div class="slide">
+        <div class="slide-header">
+            <div class="slide-tag">Experiment Tracking & Model Selection</div>
+            <h2>Model Comparison: Why Random Forest in Production?</h2>
+        </div>
+        <div class="slide-body">
+            <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 8px;">Unseen Holdout Test on Sessions 5–8 ($N = 10,200$: 200 Genuine, 10,000 Impostor) across 3 distinct algorithm families:</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Model Configuration</th>
+                        <th>Algorithm Family</th>
+                        <th>Threshold (&tau;)</th>
+                        <th>FAR</th>
+                        <th>FRR</th>
+                        <th>ROC-AUC</th>
+                        <th>EER</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>01 Baseline Logistic Regression</td>
+                        <td>Linear Model</td>
+                        <td>0.5000</td>
+                        <td><span class="badge badge-success">0.15%</span></td>
+                        <td><span class="badge badge-danger">99.50%</span></td>
+                        <td>0.9017</td>
+                        <td>17.00%</td>
+                    </tr>
+                    <tr>
+                        <td>02 Balanced Logistic Regression</td>
+                        <td>Linear Model</td>
+                        <td>0.4445</td>
+                        <td>9.91%</td>
+                        <td><strong>25.00%</strong></td>
+                        <td><strong>0.9161</strong></td>
+                        <td><strong>14.44%</strong></td>
+                    </tr>
+                    <tr>
+                        <td>03 Random Forest <em>(Production)</em></td>
+                        <td>Tree Ensemble</td>
+                        <td>0.1094</td>
+                        <td>12.05%</td>
+                        <td>54.50%</td>
+                        <td>0.8582</td>
+                        <td>20.03%</td>
+                    </tr>
+                    <tr>
+                        <td>04 Support Vector Machine (RBF)</td>
+                        <td>Kernel Method</td>
+                        <td>0.0071</td>
+                        <td><strong>4.88%</strong></td>
+                        <td>33.00%</td>
+                        <td>0.8223</td>
+                        <td>22.91%</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="grid-2" style="margin-top: 12px;">
+                <div class="feature-box">
+                    <h4 style="font-size: 14px;">Performance vs. Explainability Trade-Off</h4>
+                    <p style="font-size: 12px; margin-bottom: 4px;"><strong>Metric Leaders:</strong> Balanced Logistic Regression achieved best EER (14.44%) & ROC-AUC (0.9161); SVM achieved lowest FAR (4.88%).</p>
+                    <p style="font-size: 12px;"><strong>Why RF Was Retained:</strong> Random Forest natively yields Mean Decrease in Impurity feature importances (<code>classifier.feature_importances_</code>), powering our UI's real-time keystroke mismatch diagnostics with zero latency overhead.</p>
+                </div>
+                <div class="feature-box">
+                    <h4 style="font-size: 14px;">Holdout Integrity & Option B Calibration</h4>
+                    <p style="font-size: 12px; margin-bottom: 4px;"><strong>Holdout Integrity:</strong> Sessions 5–8 were never used for calibration or tuning. RF was chosen <em>a priori</em> as the serving template, not retroactively switched post-hoc.</p>
+                    <p style="font-size: 12px;"><strong>Option B Calibration:</strong> Strictly paired pipeline fitted on Sessions 1–3 ($N=7,650$) and calibrated on Session 4 (&tau; = 0.1094). Avoided refitting on S1–4 to prevent distribution shift.</p>
+                </div>
+            </div>
+        </div>
+        <div class="speaker-notes">
+            <strong>Speaker Notes:</strong> "Walk the panel through our 4-model comparison across 3 algorithm families. Be completely transparent: Balanced Logistic Regression achieved our best EER of 14.44% and highest ROC-AUC of 0.9161, while SVM had the lowest FAR of 4.88%. We selected and retained Random Forest for production because its decision trees natively provide Mean Decrease in Impurity feature importances, powering real-time keystroke diagnostic tips in the UI without latency-heavy SHAP explainers. Sessions 5–8 were never touched for tuning, and the model uses Option B strict calibration."
+        </div>
+    </div>
+
+    <!-- Slide 8: Serving & Testing -->
+    <div class="slide">
+        <div class="slide-header">
+            <div class="slide-tag">Quality Assurance</div>
+            <h2>FastAPI Serving & Automated Pytest Suite</h2>
+        </div>
+        <div class="slide-body">
+            <div class="grid-2">
+                <div class="feature-box">
+                    <h4>FastAPI Contract Enforcement</h4>
+                    <ul style="padding-left: 18px; font-size: 13px;">
+                        <li>Model loaded <strong>once at startup</strong> into memory.</li>
+                        <li>All 31 features validated via Pydantic:
+                            <ul>
+                                <li>$0.001 \le H \le 3.0$ s</li>
+                                <li>$0.001 \le DD \le 30.0$ s</li>
+                                <li>$-1.0 \le UD \le 30.0$ s (Rollover)</li>
+                            </ul>
+                        </li>
+                        <li>Out-of-range inputs return <strong>HTTP 422</strong>.</li>
+                    </ul>
+                </div>
+                <div class="feature-box">
+                    <h4>Pytest Results (6/6 Passed)</h4>
+                    <ul style="padding-left: 18px; font-size: 13px;">
+                        <li><code>test_health_endpoint</code>: <span class="badge badge-success">PASSED</span></li>
+                        <li><code>test_ui_index_page</code>: <span class="badge badge-success">PASSED</span></li>
+                        <li><code>test_domain_logic_genuine_vs_impostor</code>: <span class="badge badge-success">PASSED</span><br>(Genuine: 93.6% score vs Impostor: 5.2% score)</li>
+                        <li><code>test_invalid_input_missing_field</code>: <span class="badge badge-success">PASSED (422)</span></li>
+                        <li><code>test_boundary_validation</code>: <span class="badge badge-success">PASSED (422)</span></li>
+                        <li><code>test_negative_ud_accepted</code>: <span class="badge badge-success">PASSED (200)</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="speaker-notes">
+            <strong>Speaker Notes:</strong> "Explain our Pytest testing suite: all 6 tests pass cleanly. Highlight the domain logic test, which confirms that our enrolled user s002 gets a 93.6% score while an impostor gets 5.2%, and show that out-of-bounds inputs are safely rejected with HTTP 422."
+        </div>
+    </div>
+
+    <!-- Slide 9: Bonus Features -->
+    <div class="slide">
+        <div class="slide-header">
+            <div class="slide-tag">Bonus Capabilities</div>
+            <h2>Data Drift Detection & Explainability</h2>
+        </div>
+        <div class="slide-body">
+            <div class="grid-2">
+                <div class="feature-box">
+                    <h4>Bonus B: Data Drift Check</h4>
+                    <p style="font-size: 13px;">Script: <code>monitoring/drift_check.py</code></p>
+                    <p style="font-size: 13px; margin-top: 6px;">Performs two-sample Kolmogorov-Smirnov (KS) tests comparing production inference distributions against enrollment training baselines across all 31 features.</p>
+                </div>
+                <div class="feature-box">
+                    <h4>Bonus A: Feature Importance</h4>
+                    <p style="font-size: 13px;">Random Forest feature importance weights exposed via <code>POST /predict</code> API and visualized in the UI. Confirms <code>H.Shift.r</code>, <code>H.t</code>, and <code>H.i</code> drive biometric decisions.</p>
+                </div>
+            </div>
+            <div class="feature-box" style="margin-top: 16px;">
+                <h4>Privacy-by-Design Compliance</h4>
+                <p style="font-size: 13px;">In accordance with biometric privacy standards (GDPR), the system logs <strong>only timing durations and match scores</strong> in <code>monitoring/prediction_logs.jsonl</code>. Keystroke characters, passwords, usernames, and IP addresses are never logged or stored.</p>
+            </div>
+        </div>
+        <div class="speaker-notes">
+            <strong>Speaker Notes:</strong> "Cover our bonus implementations: automated drift detection using two-sample Kolmogorov-Smirnov tests to catch typing rhythm shifts over time, and dynamic feature importance in the UI. Also emphasize that we practice privacy-by-design by logging only timing floats and scores—never passwords or personal information."
+        </div>
+    </div>
+
+    <!-- Slide 10: Conclusion & Links -->
+    <div class="slide">
+        <div class="slide-header">
+            <div class="slide-tag">Summary & Submission</div>
+            <h2>Conclusion, Deliverables & Clickable Links</h2>
+        </div>
+        <div class="slide-body">
+            <div class="grid-2">
+                <div class="feature-box">
+                    <h4>Project Achievements</h4>
+                    <ul style="padding-left: 18px; font-size: 13px;">
+                        <li>Complete end-to-end ML system fulfilling all 8 workshop stages.</li>
+                        <li>Solved the 99% FRR baseline trap via EER calibration.</li>
+                        <li>100% test pass rate with strict contract enforcement.</li>
+                        <li>Containerized with Docker (<code>python:3.11-slim</code>) and CI configured.</li>
+                    </ul>
+                </div>
+                <div class="feature-box">
+                    <h4>Mandatory Links (Clickable)</h4>
+                    <ul style="padding-left: 18px; font-size: 13px;">
+                        <li><a href="../README.md">Project README & Contract Table</a></li>
+                        <li><a href="../reports/Project_Report.md">Full Project Academic Report (PDF Source)</a></li>
+                        <li><a href="http://localhost:8000/docs" target="_blank">FastAPI Swagger Documentation (/docs)</a></li>
+                        <li><a href="http://localhost:8000" target="_blank">Interactive Web Interface (/)</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 24px; color: var(--accent); font-weight: 700;">
+                Thank you! Ready for Demonstration and Viva Defense.
+            </div>
+        </div>
+        <div class="speaker-notes">
+            <strong>Speaker Notes:</strong> "Wrap up the presentation by summarizing the key deliverables: a verified pipeline, reproducible experiments, passing tests, and lean containerization. Then thank the panel and invite questions for the viva defense."
+        </div>
+    </div>
+</div>
+
+<div class="controls">
+    <button class="nav-btn" onclick="prevSlide()">◀ Previous</button>
+    <div class="counter" id="slideCounter">Slide 1 of 10</div>
+    <button class="nav-btn" onclick="nextSlide()">Next ▶</button>
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const counter = document.getElementById('slideCounter');
+
+    function showSlide(index) {
+        slides.forEach((s, i) => {
+            s.classList.toggle('active', i === index);
+        });
+        counter.textContent = `Slide ${index + 1} of ${slides.length}`;
+    }
+
+    function nextSlide() {
+        if (currentSlide < slides.length - 1) {
+            currentSlide++;
+            showSlide(currentSlide);
+        }
+    }
+
+    function prevSlide() {
+        if (currentSlide > 0) {
+            currentSlide--;
+            showSlide(currentSlide);
+        }
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+        else if (e.key === 'ArrowLeft') prevSlide();
+    });
+</script>
+</body>
+</html>
