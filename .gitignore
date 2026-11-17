@@ -1,0 +1,63 @@
+# Python virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Python cache and bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Pytest and testing caches
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# MLflow run directories and SQLite databases
+mlruns/
+.mlflow/
+mlflow.db
+*.db
+*.sqlite
+*.sqlite3
+
+# Scratch directory
+scratch/
+
+# Distribution and packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# IDE and OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Monitoring temporary logs
+monitoring/prediction_logs.jsonl
